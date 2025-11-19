@@ -18,10 +18,10 @@ func NewReviewService(repo repository.Reviews, gameRepo repository.Game) *Review
 	}
 }
 
-func (s *ReviewService) CreateReview(userId, gameId uuid.UUID, input model.Review) (uuid.UUID, error) {
+func (s *ReviewService) CreateReview(userId, gameId uuid.UUID, input model.Review) error {
 	_, err := s.gameRepo.GetGamesById(gameId)
 	if err != nil {
-		return uuid.Nil, err
+		return err
 	}
 	return s.repo.CreateReview(userId, gameId, input)
 }

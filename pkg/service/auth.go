@@ -30,7 +30,7 @@ type AuthService struct {
 func NewAuthService(repo repository.Authorization) *AuthService {
 	return &AuthService{repo: repo}
 }
-func (s *AuthService) CreateUser(user model.User) (uuid.UUID, error) {
+func (s *AuthService) CreateUser(user model.User) error {
 	user.PasswordHash = generatePasswordHash(user.PasswordHash)
 	return s.repo.CreateUser(user)
 }

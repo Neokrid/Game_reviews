@@ -14,7 +14,7 @@ func NewGameService(repo repository.Game) *GameService {
 	return &GameService{repo: repo}
 }
 
-func (s *GameService) CreateGame(game model.Game) (uuid.UUID, error) {
+func (s *GameService) CreateGame(game model.Game) error {
 	return s.repo.CreateGame(game)
 }
 

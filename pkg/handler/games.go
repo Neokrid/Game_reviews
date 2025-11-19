@@ -117,13 +117,13 @@ func (h *Handler) createGame(c *gin.Context) {
 		Release:     releaseDate,
 	}
 
-	id, err := h.services.Game.CreateGame(gameArg)
+	err = h.services.Game.CreateGame(gameArg)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, map[string]interface{}{
-		"id": id,
+	c.JSON(http.StatusOK, statusResponse{
+		Status: "ok",
 	})
 }
 

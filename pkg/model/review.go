@@ -12,7 +12,7 @@ type Review struct {
 	GameID     uuid.UUID `json:"game_id" db:"game_id"`
 	Rating     int       `json:"rating" binding:"required" db:"rating"`
 	TextReview string    `json:"text_review" binding:"required" db:"text_review"`
-	CreatedAt  time.Time `json:"create_at" db:"created_at"`
+	CreatedAt  time.Time `json:"created_at" db:"created_at"`
 }
 
 type UpdateReview struct {

@@ -25,7 +25,7 @@ func (h *Handler) getReviewById(c *gin.Context) {
 }
 
 func (h *Handler) deleteReview(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("review_id")
 	reviewID, err := uuid.Parse(id)
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "неверный формат Id")
@@ -61,13 +61,13 @@ func (h *Handler) createReview(c *gin.Context) {
 		return
 	}
 
-	id, err := h.services.Reviews.CreateReview(userId, gameId, input)
+	err = h.services.Reviews.CreateReview(userId, gameId, input)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, map[string]interface{}{
-		"id": id,
+	c.JSON(http.StatusOK, statusResponse{
+		Status: "ok",
 	})
 }
 

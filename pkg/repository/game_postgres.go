@@ -3,9 +3,9 @@ package repository
 import (
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/Neokrid/game-review/pkg/model"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -19,14 +19,14 @@ func NewGamePostgres(db *sqlx.DB) *GamePostgres {
 	return &GamePostgres{db: db}
 }
 
-func (r *GamePostgres) CreateGame(game model.Game) (uuid.UUID, error) {
+func (r *GamePostgres) CreateGame(game model.Game) error {
 	var id uuid.UUID
 	query := fmt.Sprintf("INSERT INTO %s (title, description, developer, release) values ($1, $2, $3, $4) RETURNING id", gamesTable)
 	row := r.db.QueryRow(query, game.Title, game.Description, game.Developer, game.Release)
 	if err := row.Scan(&id); err != nil {
-		return uuid.Nil, err
+		return err
 	}
-	return id, nil
+	return nil
 }
 
 func (r *GamePostgres) GetAllGames() ([]model.Game, error) {
@@ -52,45 +52,37 @@ func (r *GamePostgres) DeleteGame(gameId uuid.UUID) error {
 }
 
 func (r *GamePostgres) UpdateGame(gameId uuid.UUID, updateGameArgs model.UpdateGame) error {
-	setValues := make([]string, 0)
-	args := make([]interface{}, 0)
-	argsId := 1
+	query := sq.Update("games").Where(sq.Eq{"id": gameId}).PlaceholderFormat(sq.Dollar)
+	isUpdate := false
 	if updateGameArgs.Title != nil {
-		setValues = append(setValues, fmt.Sprintf("title=$%d", argsId))
-		args = append(args, *updateGameArgs.Title)
-		argsId++
+		query = query.Set("title", *updateGameArgs.Title)
+		isUpdate = true
 	}
 	if updateGameArgs.Description != nil {
-		setValues = append(setValues, fmt.Sprintf("description=$%d", argsId))
-		args = append(args, *updateGameArgs.Description)
-		argsId++
+		query = query.Set("description", *updateGameArgs.Description)
+		isUpdate = true
 	}
 	if updateGameArgs.Developer != nil {
-		setValues = append(setValues, fmt.Sprintf("developer=$%d", argsId))
-		args = append(args, *updateGameArgs.Developer)
-		argsId++
+		query = query.Set("developer", *updateGameArgs.Developer)
+		isUpdate = true
 	}
 	if updateGameArgs.Release != nil {
 		releaseDate, err := time.Parse("2006-01-02", *updateGameArgs.Release)
 		if err != nil {
 			return errors.New("ошибка формата даты(используйте YYYY-MM-DD)")
 		}
-		setValues = append(setValues, fmt.Sprintf("release=$%d", argsId))
-		args = append(args, releaseDate)
-		argsId++
+		query = query.Set("release", releaseDate)
+		isUpdate = true
 	}
 
-	setQuery := strings.Join(setValues, ", ")
-
-	if len(setValues) == 0 {
+	if !isUpdate {
 		return errors.New("структура обновления не имеет полей")
 	}
-
-	query := fmt.Sprintf("UPDATE %s SET %s WHERE id=$%d", gamesTable, setQuery, argsId)
-
-	args = append(args, gameId)
-
-	_, err := r.db.Exec(query, args...)
+	sqlQuery, args, err := query.ToSql()
+	if err != nil {
+		return err
+	}
+	_, err = r.db.Exec(sqlQuery, args...)
 	return err
 }
 

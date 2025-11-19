@@ -7,7 +7,7 @@ CREATE TABLE users (
     name VARCHAR(255) NOT NULL UNIQUE,
     username VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    created_at TIMESTAMPTZ DEFAULT timezone('utc', now())
 );
 
 
@@ -17,7 +17,7 @@ CREATE TABLE games (
     description TEXT,
     developer VARCHAR(255),
     release DATE NOT NULL, 
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    created_at TIMESTAMPTZ DEFAULT timezone('utc', now())
 );
 
 
@@ -29,7 +29,7 @@ CREATE TABLE reviews (
     
     rating SMALLINT NOT NULL CHECK (rating >= 1 AND rating <= 10),
     text_review TEXT NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
+    created_at TIMESTAMPTZ DEFAULT timezone('utc', now()),
 
     UNIQUE (user_id, game_id)
 );

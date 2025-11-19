@@ -12,7 +12,7 @@ type Game struct {
 	Description string    `json:"description" binding:"required" db:"description"`
 	Developer   string    `json:"developer" binding:"required" db:"developer"`
 	Release     time.Time `json:"release" binding:"required" db:"release"`
-	CreatedAt   time.Time `json:"create_at" db:"created_at"`
+	CreatedAt   time.Time `json:"created_at" db:"created_at"`
 }
 
 type UpdateGame struct {

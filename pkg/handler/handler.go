@@ -57,9 +57,9 @@ func (h *Handler) initAPIRoutes(router *gin.Engine) {
 
 			reviewsAuth := gamesAuth.Group(":id/reviews")
 			{
-				reviewsAuth.DELETE("/:id", h.deleteReview)     //complete
-				reviewsAuth.POST("/", h.createReview)          //complete
-				reviewsAuth.PUT("/:review_id", h.changeReview) //
+				reviewsAuth.DELETE("/:review_id", h.deleteReview) //complete
+				reviewsAuth.POST("/", h.createReview)             //complete
+				reviewsAuth.PUT("/:review_id", h.changeReview)    //complete
 			}
 		}
 

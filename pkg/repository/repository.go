@@ -13,12 +13,12 @@ type Repository struct {
 }
 
 type Authorization interface {
-	CreateUser(user model.User) (uuid.UUID, error)
+	CreateUser(user model.User) error
 	GetUser(username string) (model.User, error)
 }
 
 type Game interface {
-	CreateGame(game model.Game) (uuid.UUID, error)
+	CreateGame(game model.Game) error
 	GetAllGames() ([]model.Game, error)
 	GetGamesById(id uuid.UUID) (model.Game, error)
 	DeleteGame(gameId uuid.UUID) error
@@ -27,7 +27,7 @@ type Game interface {
 }
 
 type Reviews interface {
-	CreateReview(userId, gameId uuid.UUID, input model.Review) (uuid.UUID, error)
+	CreateReview(userId, gameId uuid.UUID, input model.Review) error
 	GetReviewById(id uuid.UUID) (model.Review, error)
 	DeleteReview(id uuid.UUID) error
 	UpdateReview(id uuid.UUID, updateReviewArgs model.UpdateReview) error
