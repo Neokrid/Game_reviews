@@ -13,6 +13,10 @@ type getAllGamesResponse struct {
 	Games []model.Game `json:"Games"`
 }
 
+type GetLeaderboardResponse struct {
+	Leaderboard []model.Leaderboard `json:"leaderboard"`
+}
+
 func (h *Handler) getAllGames(c *gin.Context) {
 	games, err := h.services.Game.GetAllGames()
 	if err != nil {
@@ -146,5 +150,41 @@ func (h *Handler) changeGame(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, statusResponse{
 		Status: "ok",
+	})
+}
+
+func (h *Handler) getLeaderboard(c *gin.Context) {
+	leaderboard, err := h.services.GetLeaderboard()
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, GetLeaderboardResponse{
+		Leaderboard: leaderboard,
+	})
+
+}
+
+type SearchGameInput struct {
+	Title string `json:"title" binding:"required"`
+}
+
+func (h *Handler) searchGame(c *gin.Context) {
+	var input SearchGameInput
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	gameToFind := model.Game{
+		Title: input.Title,
+	}
+	gamesFound, err := h.services.SearchGame(gameToFind)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, getAllGamesResponse{
+		Games: gamesFound,
 	})
 }

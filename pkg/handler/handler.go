@@ -19,6 +19,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	h.initGameRoutes(router)
 	h.initReviewsRoutes(router)
 	h.initAPIRoutes(router)
+	h.initSearchRoutes(router)
 	return router
 }
 
@@ -36,6 +37,7 @@ func (h *Handler) initGameRoutes(router *gin.Engine) {
 		games.GET("/", h.getAllGames)               //complete
 		games.GET("/:id", h.getGamesById)           //complete
 		games.GET(":id/reviews", h.getGamesReviews) //complete
+		games.GET("/leaderboard", h.getLeaderboard) //complete
 	}
 }
 
@@ -63,5 +65,12 @@ func (h *Handler) initAPIRoutes(router *gin.Engine) {
 			}
 		}
 
+	}
+}
+
+func (h *Handler) initSearchRoutes(router *gin.Engine) {
+	search := router.Group("/search")
+	{
+		search.GET("/", h.searchGame)
 	}
 }

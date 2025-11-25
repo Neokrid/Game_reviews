@@ -25,6 +25,8 @@ type Game interface {
 	DeleteGame(gameId uuid.UUID) error
 	UpdateGame(gameId uuid.UUID, updateGameArgs model.UpdateGame) error
 	GetGamesReviews(gameId uuid.UUID) ([]model.Review, error)
+	GetLeaderboard() ([]model.Leaderboard, error)
+	SearchGame(gameToFind model.Game) ([]model.Game, error)
 }
 
 type Reviews interface {
@@ -37,7 +39,7 @@ type Reviews interface {
 func NewService(repo *repository.Repository) *Service {
 	return &Service{
 		Authorization: NewAuthService(repo.Authorization),
-		Game:          NewGameService(repo.Game),
+		Game:          NewGameService(repo.Game, repo.GameRedis),
 		Reviews:       NewReviewService(repo.Reviews, repo.Game),
 	}
 }

@@ -6,16 +6,21 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/Neokrid/game-review/pkg/model"
+	"github.com/go-redis/redis"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
 type ReviewPostgres struct {
-	db *sqlx.DB
+	db    *sqlx.DB
+	redis *redis.Client
 }
 
-func NewReviewPostgres(db *sqlx.DB) *ReviewPostgres {
-	return &ReviewPostgres{db: db}
+func NewReviewPostgres(db *sqlx.DB, redis *redis.Client) *ReviewPostgres {
+	return &ReviewPostgres{
+		db:    db,
+		redis: redis,
+	}
 }
 
 func (r *ReviewPostgres) CreateReview(userId, gameId uuid.UUID, input model.Review) error {

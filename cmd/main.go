@@ -33,7 +33,17 @@ func main() {
 	if err != nil {
 		logrus.Fatalf("Ошибка при подключении к БД: %s", err.Error())
 	}
-	repos := repository.NewRepository(db)
+
+	redis, err := repository.NewRedisDB(repository.ConfigRedis{
+		Addr:     viper.GetString("redis.addr"),
+		Password: viper.GetString("redis.password"),
+		DB:       viper.GetInt("redis.db"),
+	})
+	if err != nil {
+		logrus.Fatalf("Ошибка при подключении к Redis: %s", err.Error())
+	}
+
+	repos := repository.NewRepository(db, redis)
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
 

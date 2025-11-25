@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/Neokrid/game-review/pkg/model"
+	"github.com/go-redis/redis"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
@@ -10,6 +11,7 @@ type Repository struct {
 	Authorization
 	Game
 	Reviews
+	GameRedis
 }
 
 type Authorization interface {
@@ -24,6 +26,8 @@ type Game interface {
 	DeleteGame(gameId uuid.UUID) error
 	UpdateGame(gameId uuid.UUID, updateGameArgs model.UpdateGame) error
 	GetGamesReviews(gameId uuid.UUID) ([]model.Review, error)
+	GetLeaderboard() ([]model.Leaderboard, error)
+	SearchGame(gameToFind model.Game) ([]model.Game, error)
 }
 
 type Reviews interface {
@@ -33,10 +37,16 @@ type Reviews interface {
 	UpdateReview(id uuid.UUID, updateReviewArgs model.UpdateReview) error
 }
 
-func NewRepository(db *sqlx.DB) *Repository {
+type GameRedis interface {
+	GetLeaderboardCache(cacheKay string) (string, error)
+	SetLeaderboardCache(cacheKay string, data []byte) error
+}
+
+func NewRepository(db *sqlx.DB, redis *redis.Client) *Repository {
 	return &Repository{
 		Authorization: NewAuthPostgres(db),
 		Game:          NewGamePostgres(db),
-		Reviews:       NewReviewPostgres(db),
+		Reviews:       NewReviewPostgres(db, redis),
+		GameRedis:     NewGameRedis(redis),
 	}
 }

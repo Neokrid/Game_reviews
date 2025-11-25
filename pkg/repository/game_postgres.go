@@ -16,7 +16,9 @@ type GamePostgres struct {
 }
 
 func NewGamePostgres(db *sqlx.DB) *GamePostgres {
-	return &GamePostgres{db: db}
+	return &GamePostgres{
+		db: db,
+	}
 }
 
 func (r *GamePostgres) CreateGame(game model.Game) error {
@@ -94,4 +96,21 @@ func (r *GamePostgres) GetGamesReviews(gameId uuid.UUID) ([]model.Review, error)
 	}
 
 	return reviews, nil
+}
+
+func (r *GamePostgres) GetLeaderboard() ([]model.Leaderboard, error) {
+	leaderboard := make([]model.Leaderboard, 0)
+	query := fmt.Sprintf("SELECT ROW_NUMBER() OVER (ORDER BY CAST(AVG(r.rating) AS DECIMAL(10, 2)) DESC, COUNT(r.id) DESC) as position, g.title, CAST(AVG(r.rating) AS DECIMAL(10, 2)) AS average_rating from %s g join %s r on g.id = r.game_id group by g.id, g.title", gamesTable, reviewTable)
+	err := r.db.Select(&leaderboard, query)
+	return leaderboard, err
+}
+
+func (r *GamePostgres) SearchGame(gameToFind model.Game) ([]model.Game, error) {
+	gamesFound := make([]model.Game, 0)
+	query := fmt.Sprintf("SELECT id, title, description, developer from %s where title %% $1 order by title ASC limit 10", gamesTable)
+	if err := r.db.Select(&gamesFound, query, gameToFind.Title); err != nil {
+		return nil, err
+	}
+
+	return gamesFound, nil
 }
