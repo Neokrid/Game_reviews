@@ -63,3 +63,7 @@ func (s *GameService) GetLeaderboard() ([]model.Leaderboard, error) {
 func (s *GameService) SearchGame(gameToFind model.Game) ([]model.Game, error) {
 	return s.repo.SearchGame(gameToFind)
 }
+
+func (s *GameService) GetRatingHistory(gameId uuid.UUID) ([]model.RatingHistory, error) {
+	return s.repo.GetRatingHistory(gameId)
+}

@@ -28,6 +28,7 @@ type Game interface {
 	GetGamesReviews(gameId uuid.UUID) ([]model.Review, error)
 	GetLeaderboard() ([]model.Leaderboard, error)
 	SearchGame(gameToFind model.Game) ([]model.Game, error)
+	GetRatingHistory(gameId uuid.UUID) ([]model.RatingHistory, error)
 }
 
 type Reviews interface {

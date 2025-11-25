@@ -37,7 +37,8 @@ func (h *Handler) initGameRoutes(router *gin.Engine) {
 		games.GET("/", h.getAllGames)               //complete
 		games.GET("/:id", h.getGamesById)           //complete
 		games.GET(":id/reviews", h.getGamesReviews) //complete
-		games.GET("/leaderboard", h.getLeaderboard) //complete
+		games.GET("/leaderboard", h.getLeaderboard)
+		games.GET(":id/rating-history", h.getRatingHistory)
 	}
 }
 

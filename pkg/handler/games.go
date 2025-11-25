@@ -188,3 +188,19 @@ func (h *Handler) searchGame(c *gin.Context) {
 		Games: gamesFound,
 	})
 }
+
+func (h *Handler) getRatingHistory(c *gin.Context) {
+	id := c.Param("id")
+	gameId, err := uuid.Parse(id)
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "неверный формат Id")
+		return
+	}
+
+	ratingHistory, err := h.services.GetRatingHistory(gameId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, ratingHistory)
+}

@@ -114,3 +114,12 @@ func (r *GamePostgres) SearchGame(gameToFind model.Game) ([]model.Game, error) {
 
 	return gamesFound, nil
 }
+
+func (r *GamePostgres) GetRatingHistory(gameId uuid.UUID) ([]model.RatingHistory, error) {
+	ratingHistory := make([]model.RatingHistory, 0)
+	query := fmt.Sprintf("SELECT created_at::DATE AS review_date, ROUND(AVG(rating), 1) AS avg_rating FROM %s WHERE game_id = $1 GROUP BY review_date ORDER BY review_date ASC ", reviewTable)
+	if err := r.db.Select(&ratingHistory, query, gameId); err != nil {
+		return nil, err
+	}
+	return ratingHistory, nil
+}
