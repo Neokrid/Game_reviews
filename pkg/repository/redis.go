@@ -17,5 +17,6 @@ func NewRedisDB(cfg ConfigRedis) (*redis.Client, error) {
 	if err := redis.Ping().Err(); err != nil {
 		return nil, err
 	}
+
 	return redis, nil
 }

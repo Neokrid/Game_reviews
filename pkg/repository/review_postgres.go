@@ -6,20 +6,17 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/Neokrid/game-review/pkg/model"
-	"github.com/go-redis/redis"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
 type ReviewPostgres struct {
-	db    *sqlx.DB
-	redis *redis.Client
+	db *sqlx.DB
 }
 
-func NewReviewPostgres(db *sqlx.DB, redis *redis.Client) *ReviewPostgres {
+func NewReviewPostgres(db *sqlx.DB) *ReviewPostgres {
 	return &ReviewPostgres{
-		db:    db,
-		redis: redis,
+		db: db,
 	}
 }
 

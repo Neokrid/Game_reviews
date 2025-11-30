@@ -1,9 +1,15 @@
 package repository
 
 import (
+	"encoding/json"
 	"time"
 
+	"github.com/Neokrid/game-review/pkg/model"
 	"github.com/go-redis/redis"
+)
+
+const (
+	CacheTTL = 24 * time.Hour
 )
 
 type GetGameRedis struct {
@@ -16,15 +22,28 @@ func NewGameRedis(redis *redis.Client) *GetGameRedis {
 	}
 }
 
-func (r *GetGameRedis) GetLeaderboardCache(cacheKay string) (string, error) {
-	return r.redis.Get(cacheKay).Result()
+func (r *GetGameRedis) GetLeaderboardCache(cacheKay string) ([]model.Leaderboard, error) {
+	val, err := r.redis.Get(cacheKay).Bytes()
+	if err != nil {
+		return nil, err
+	}
+	var leaderboard []model.Leaderboard
+	if err := json.Unmarshal(val, &leaderboard); err != nil {
+		return nil, err
+	}
+
+	return leaderboard, nil
 
 }
 
-func (r *GetGameRedis) SetLeaderboardCache(cacheKay string, data []byte) error {
-	err := r.redis.Set(cacheKay, data, 24*time.Hour)
+func (r *GetGameRedis) SetLeaderboardCache(cacheKay string, leaderboard []model.Leaderboard) error {
+	data, err := json.Marshal(leaderboard)
 	if err != nil {
-		return err.Err()
+		return err
 	}
-	return redis.Nil
+	errRedis := r.redis.Set(cacheKay, data, CacheTTL)
+	if errRedis != nil {
+		return errRedis.Err()
+	}
+	return nil
 }

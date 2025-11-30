@@ -1,8 +1,6 @@
 package service
 
 import (
-	"encoding/json"
-
 	"github.com/Neokrid/game-review/pkg/model"
 	"github.com/Neokrid/game-review/pkg/repository"
 	"github.com/google/uuid"
@@ -45,18 +43,16 @@ func (s *GameService) GetLeaderboard() ([]model.Leaderboard, error) {
 	cacheKey := "leaderboard:"
 	val, err := s.repoRedis.GetLeaderboardCache(cacheKey)
 	if err == nil {
-		var leaderboard []model.Leaderboard
-		if err := json.Unmarshal([]byte(val), &leaderboard); err == nil {
-			return leaderboard, nil
-		}
+		return val, nil
 	}
+
 	leaderboard, err := s.repo.GetLeaderboard()
 	if err != nil {
 		return nil, err
 	}
-	//TODO Сохранение в редиску в горутине
-	dataBytes, _ := json.Marshal(leaderboard)
-	s.repoRedis.SetLeaderboardCache(cacheKey, dataBytes)
+	go func() {
+		s.repoRedis.SetLeaderboardCache(cacheKey, leaderboard)
+	}()
 	return leaderboard, nil
 }
 

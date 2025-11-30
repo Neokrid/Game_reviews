@@ -100,7 +100,13 @@ func (r *GamePostgres) GetGamesReviews(gameId uuid.UUID) ([]model.Review, error)
 
 func (r *GamePostgres) GetLeaderboard() ([]model.Leaderboard, error) {
 	leaderboard := make([]model.Leaderboard, 0)
-	query := fmt.Sprintf("SELECT ROW_NUMBER() OVER (ORDER BY CAST(AVG(r.rating) AS DECIMAL(10, 2)) DESC, COUNT(r.id) DESC) as position, g.title, CAST(AVG(r.rating) AS DECIMAL(10, 2)) AS average_rating from %s g join %s r on g.id = r.game_id group by g.id, g.title", gamesTable, reviewTable)
+	query := fmt.Sprintf(`
+	SELECT 
+	ROW_NUMBER() OVER (ORDER BY CAST(AVG(r.rating) AS DECIMAL(10, 2)) DESC, 
+	COUNT(r.id) DESC) as position, g.title, 
+	CAST(AVG(r.rating) AS DECIMAL(10, 2)) AS average_rating 
+	from %s g join %s r on g.id = r.game_id group by g.id, g.title LIMIT 10`,
+		gamesTable, reviewTable)
 	err := r.db.Select(&leaderboard, query)
 	return leaderboard, err
 }
@@ -117,9 +123,16 @@ func (r *GamePostgres) SearchGame(gameToFind model.Game) ([]model.Game, error) {
 
 func (r *GamePostgres) GetRatingHistory(gameId uuid.UUID) ([]model.RatingHistory, error) {
 	ratingHistory := make([]model.RatingHistory, 0)
-	query := fmt.Sprintf("SELECT created_at::DATE AS review_date, ROUND(AVG(rating), 1) AS avg_rating FROM %s WHERE game_id = $1 GROUP BY review_date ORDER BY review_date ASC ", reviewTable)
+	query := fmt.Sprintf(`
+	SELECT 
+	created_at::DATE AS review_date, 
+	ROUND(AVG(rating), 1) AS avg_rating 
+	FROM %s WHERE game_id = $1 
+	GROUP BY review_date 
+	ORDER BY review_date ASC`, reviewTable)
 	if err := r.db.Select(&ratingHistory, query, gameId); err != nil {
 		return nil, err
 	}
+
 	return ratingHistory, nil
 }

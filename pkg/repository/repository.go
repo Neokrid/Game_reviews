@@ -39,15 +39,15 @@ type Reviews interface {
 }
 
 type GameRedis interface {
-	GetLeaderboardCache(cacheKay string) (string, error)
-	SetLeaderboardCache(cacheKay string, data []byte) error
+	GetLeaderboardCache(cacheKay string) ([]model.Leaderboard, error)
+	SetLeaderboardCache(cacheKay string, leaderboard []model.Leaderboard) error
 }
 
 func NewRepository(db *sqlx.DB, redis *redis.Client) *Repository {
 	return &Repository{
 		Authorization: NewAuthPostgres(db),
 		Game:          NewGamePostgres(db),
-		Reviews:       NewReviewPostgres(db, redis),
+		Reviews:       NewReviewPostgres(db),
 		GameRedis:     NewGameRedis(redis),
 	}
 }
