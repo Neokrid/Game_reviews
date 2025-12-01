@@ -26,17 +26,17 @@ func (h *Handler) InitRoutes() *gin.Engine {
 func (h *Handler) initAuthRoutes(router *gin.Engine) {
 	auth := router.Group("/auth")
 	{
-		auth.POST("/sign-up", h.signUp) //complete
-		auth.POST("/sign-in", h.signIn) //complete
+		auth.POST("/sign-up", h.signUp)
+		auth.POST("/sign-in", h.signIn)
 	}
 }
 
 func (h *Handler) initGameRoutes(router *gin.Engine) {
 	games := router.Group("/games")
 	{
-		games.GET("/", h.getAllGames)               //complete
-		games.GET("/:id", h.getGamesById)           //complete
-		games.GET(":id/reviews", h.getGamesReviews) //complete
+		games.GET("/", h.getAllGames)
+		games.GET("/:id", h.getGamesById)
+		games.GET(":id/reviews", h.getGamesReviews)
 		games.GET("/leaderboard", h.getLeaderboard)
 		games.GET(":id/rating-history", h.getRatingHistory)
 	}
@@ -45,24 +45,24 @@ func (h *Handler) initGameRoutes(router *gin.Engine) {
 func (h *Handler) initReviewsRoutes(router *gin.Engine) {
 	reviews := router.Group("/reviews")
 	{
-		reviews.GET("/:id", h.getReviewById) //complete
+		reviews.GET("/:id", h.getReviewById)
 	}
 }
 
 func (h *Handler) initAPIRoutes(router *gin.Engine) {
-	api := router.Group("/api", h.userIdentity) //complete
+	api := router.Group("/api", h.userIdentity)
 	{
 		gamesAuth := api.Group("/games")
 		{
-			gamesAuth.DELETE("/:id", h.deleteGame) //complete
-			gamesAuth.POST("/", h.createGame)      //complete
-			gamesAuth.PUT("/:id", h.changeGame)    //complete
+			gamesAuth.DELETE("/:id", h.deleteGame)
+			gamesAuth.POST("/", h.createGame)
+			gamesAuth.PUT("/:id", h.changeGame)
 
 			reviewsAuth := gamesAuth.Group(":id/reviews")
 			{
-				reviewsAuth.DELETE("/:review_id", h.deleteReview) //complete
-				reviewsAuth.POST("/", h.createReview)             //complete
-				reviewsAuth.PUT("/:review_id", h.changeReview)    //complete
+				reviewsAuth.DELETE("/:review_id", h.deleteReview)
+				reviewsAuth.POST("/", h.createReview)
+				reviewsAuth.PUT("/:review_id", h.changeReview)
 			}
 		}
 

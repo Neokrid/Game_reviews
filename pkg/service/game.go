@@ -1,8 +1,11 @@
 package service
 
 import (
+	"strconv"
+
 	"github.com/Neokrid/game-review/pkg/model"
 	"github.com/Neokrid/game-review/pkg/repository"
+	"github.com/Neokrid/game-review/pkg/utils"
 	"github.com/google/uuid"
 )
 
@@ -19,8 +22,30 @@ func (s *GameService) CreateGame(game model.Game) error {
 	return s.repo.CreateGame(game)
 }
 
-func (s *GameService) GetAllGames() ([]model.Game, error) {
-	return s.repo.GetAllGames()
+func (s *GameService) GetAllGames(limitStr string, token string) (*model.GameResponse, error) {
+	limit, _ := strconv.Atoi(limitStr)
+	lastId, err := utils.DecodeCursor(token)
+	if err != nil {
+		return nil, err
+	}
+
+	if limit < 1 || limit > 20 {
+		limit = 20
+	}
+
+	games, err := s.repo.GetAllGames(limit, lastId)
+	if err != nil {
+		return nil, err
+	}
+	res := &model.GameResponse{
+		Game: games,
+	}
+
+	if len(games) == limit {
+		lastGame := games[len(games)-1]
+		res.NextCursor, _ = utils.EncodeCursor(lastGame.Id)
+	}
+	return res, nil
 }
 
 func (s *GameService) GetGamesById(id uuid.UUID) (model.Game, error) {

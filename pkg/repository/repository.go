@@ -21,7 +21,7 @@ type Authorization interface {
 
 type Game interface {
 	CreateGame(game model.Game) error
-	GetAllGames() ([]model.Game, error)
+	GetAllGames(limit int, lastId uuid.UUID) ([]model.Game, error)
 	GetGamesById(id uuid.UUID) (model.Game, error)
 	DeleteGame(gameId uuid.UUID) error
 	UpdateGame(gameId uuid.UUID, updateGameArgs model.UpdateGame) error

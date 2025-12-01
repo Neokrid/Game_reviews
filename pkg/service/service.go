@@ -20,7 +20,7 @@ type Authorization interface {
 
 type Game interface {
 	CreateGame(game model.Game) error
-	GetAllGames() ([]model.Game, error)
+	GetAllGames(limitStr string, token string) (*model.GameResponse, error)
 	GetGamesById(id uuid.UUID) (model.Game, error)
 	DeleteGame(gameId uuid.UUID) error
 	UpdateGame(gameId uuid.UUID, updateGameArgs model.UpdateGame) error

@@ -21,3 +21,8 @@ type UpdateGame struct {
 	Developer   *string `json:"developer" db:"developer"`
 	Release     *string `json:"release" db:"release"`
 }
+
+type GameResponse struct {
+	Game       []Game `json:"game"`
+	NextCursor string `json:"nextCursor"`
+}

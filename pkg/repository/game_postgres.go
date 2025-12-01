@@ -31,12 +31,22 @@ func (r *GamePostgres) CreateGame(game model.Game) error {
 	return nil
 }
 
-func (r *GamePostgres) GetAllGames() ([]model.Game, error) {
+func (r *GamePostgres) GetAllGames(limit int, lastId uuid.UUID) ([]model.Game, error) {
 	var games []model.Game
-	query := fmt.Sprintf("SELECT * FROM %s", gamesTable)
-	err := r.db.Select(&games, query)
-
-	return games, err
+	query := sq.Select("*").From("games").PlaceholderFormat(sq.Dollar)
+	if lastId != uuid.Nil {
+		query = query.Where(sq.Lt{"id": lastId})
+	}
+	query = query.OrderBy("id DESC")
+	query = query.Limit(uint64(limit))
+	sqlQuery, args, err := query.ToSql()
+	if err != nil {
+		return nil, err
+	}
+	if err := r.db.Select(&games, sqlQuery, args...); err != nil {
+		return nil, err
+	}
+	return games, nil
 }
 
 func (r *GamePostgres) GetGamesById(id uuid.UUID) (model.Game, error) {

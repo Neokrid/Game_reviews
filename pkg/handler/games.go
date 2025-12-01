@@ -18,14 +18,14 @@ type GetLeaderboardResponse struct {
 }
 
 func (h *Handler) getAllGames(c *gin.Context) {
-	games, err := h.services.Game.GetAllGames()
+	cursorToken := c.Query("token")
+	limitStr := c.DefaultQuery("limit", "10")
+	games, err := h.services.Game.GetAllGames(limitStr, cursorToken)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, getAllGamesResponse{
-		Games: games,
-	})
+	c.JSON(http.StatusOK, games)
 }
 
 func (h *Handler) getGamesById(c *gin.Context) {
