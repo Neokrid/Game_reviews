@@ -1,10 +1,12 @@
 package repository
 
 import (
-	"errors"
 	"fmt"
+	"net/http"
+	"strings"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/Neokrid/game-review/pkg/errors"
 	"github.com/Neokrid/game-review/pkg/model"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -36,6 +38,11 @@ func (r *ReviewPostgres) GetReviewById(id uuid.UUID) (model.Review, error) {
 	var review model.Review
 	query := fmt.Sprintf("SELECT * FROM %s WHERE id=$1", reviewTable)
 	err := r.db.Get(&review, query, id)
+	if err != nil {
+		if strings.Contains(err.Error(), "no rows in result set") {
+			return review, errors.NewErr(err, http.StatusNotFound, "The requested review was not found.")
+		}
+	}
 	return review, err
 }
 
@@ -60,7 +67,7 @@ func (r *ReviewPostgres) UpdateReview(reviewId uuid.UUID, updateReviewArgs model
 	}
 
 	if !isUpdate {
-		return errors.New("структура обновления не имеет полей")
+		return errors.NewErr(nil, http.StatusBadRequest, "The structure has no updated fields.")
 	}
 
 	sqlQuery, args, err := query.ToSql()

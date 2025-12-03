@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"errors"
 	"net/http"
 	"strings"
 
+	e "github.com/Neokrid/game-review/pkg/errors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -17,17 +17,17 @@ const (
 func (h *Handler) userIdentity(c *gin.Context) {
 	header := c.GetHeader(authorizationHeader)
 	if header == "" {
-		newErrorResponse(c, http.StatusUnauthorized, "пустой заголовок аутентификации")
+		e.WriteErr(c, e.NewErr(nil, http.StatusUnauthorized, "Empty authentication header"))
 		return
 	}
 	headerParts := strings.Split(header, " ")
 	if len(headerParts) != 2 {
-		newErrorResponse(c, http.StatusUnauthorized, "неверный заголовок аутентификации")
+		e.WriteErr(c, e.NewErr(nil, http.StatusUnauthorized, "Invalid authentication header"))
 	}
 
 	userId, err := h.services.Authorization.ParseToken(headerParts[1])
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		e.WriteErr(c, err)
 		return
 	}
 
@@ -37,11 +37,11 @@ func (h *Handler) userIdentity(c *gin.Context) {
 func getUserid(c *gin.Context) (uuid.UUID, error) {
 	idValue, ok := c.Get(userCtx)
 	if !ok {
-		return uuid.Nil, errors.New("user ID not found in context")
+		return uuid.Nil, e.NewErr(nil, http.StatusUnauthorized, "user ID not found in context")
 	}
 	userID, ok := idValue.(uuid.UUID)
 	if !ok {
-		return uuid.Nil, errors.New("user ID in context is of invalid type")
+		return uuid.Nil, e.NewErr(nil, http.StatusUnauthorized, "user ID in context is of invalid type")
 	}
 
 	return userID, nil

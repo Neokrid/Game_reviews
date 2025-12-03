@@ -1,11 +1,13 @@
 package repository
 
 import (
-	"errors"
 	"fmt"
+	"net/http"
+	"strings"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/Neokrid/game-review/pkg/errors"
 	"github.com/Neokrid/game-review/pkg/model"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -53,6 +55,11 @@ func (r *GamePostgres) GetGamesById(id uuid.UUID) (model.Game, error) {
 	var game model.Game
 	query := fmt.Sprintf("SELECT * FROM %s WHERE id=$1", gamesTable)
 	err := r.db.Get(&game, query, id)
+	if err != nil {
+		if strings.Contains(err.Error(), "no rows in result set") {
+			return game, errors.NewErr(err, http.StatusNotFound, "The requested game was not found.")
+		}
+	}
 	return game, err
 }
 
@@ -81,14 +88,14 @@ func (r *GamePostgres) UpdateGame(gameId uuid.UUID, updateGameArgs model.UpdateG
 	if updateGameArgs.Release != nil {
 		releaseDate, err := time.Parse("2006-01-02", *updateGameArgs.Release)
 		if err != nil {
-			return errors.New("ошибка формата даты(используйте YYYY-MM-DD)")
+			return errors.NewErr(nil, http.StatusBadRequest, "Invalid Date format. Format: 2006-01-02")
 		}
 		query = query.Set("release", releaseDate)
 		isUpdate = true
 	}
 
 	if !isUpdate {
-		return errors.New("структура обновления не имеет полей")
+		return errors.NewErr(nil, http.StatusBadRequest, "The structure has no updated fields.")
 	}
 	sqlQuery, args, err := query.ToSql()
 	if err != nil {

@@ -3,7 +3,9 @@ package utils
 import (
 	"encoding/base64"
 	"encoding/json"
+	"net/http"
 
+	"github.com/Neokrid/game-review/pkg/errors"
 	"github.com/Neokrid/game-review/pkg/model"
 	"github.com/google/uuid"
 )
@@ -25,7 +27,7 @@ func DecodeCursor(token string) (uuid.UUID, error) {
 	}
 	bytes, err := base64.URLEncoding.DecodeString(token)
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil, errors.NewErr(nil, http.StatusBadRequest, "Invalid token format")
 	}
 	var c model.Cursor
 	if err := json.Unmarshal(bytes, &c); err != nil {

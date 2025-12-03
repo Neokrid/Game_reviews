@@ -1,8 +1,10 @@
 package service
 
 import (
+	"net/http"
 	"strconv"
 
+	"github.com/Neokrid/game-review/pkg/errors"
 	"github.com/Neokrid/game-review/pkg/model"
 	"github.com/Neokrid/game-review/pkg/repository"
 	"github.com/Neokrid/game-review/pkg/utils"
@@ -61,7 +63,12 @@ func (s *GameService) UpdateGame(gameId uuid.UUID, updateGameArgs model.UpdateGa
 }
 
 func (s *GameService) GetGamesReviews(gameId uuid.UUID) ([]model.Review, error) {
-	return s.repo.GetGamesReviews(gameId)
+
+	reviews, err := s.repo.GetGamesReviews(gameId)
+	if len(reviews) < 1 {
+		return nil, errors.NewErr(err, http.StatusNotFound, "No reviews found for this game")
+	}
+	return reviews, nil
 }
 
 func (s *GameService) GetLeaderboard() ([]model.Leaderboard, error) {
@@ -82,9 +89,17 @@ func (s *GameService) GetLeaderboard() ([]model.Leaderboard, error) {
 }
 
 func (s *GameService) SearchGame(gameToFind model.Game) ([]model.Game, error) {
-	return s.repo.SearchGame(gameToFind)
+	games, err := s.repo.SearchGame(gameToFind)
+	if len(games) < 1 {
+		return nil, errors.NewErr(err, http.StatusNotFound, "Games not found")
+	}
+	return games, nil
 }
 
 func (s *GameService) GetRatingHistory(gameId uuid.UUID) ([]model.RatingHistory, error) {
-	return s.repo.GetRatingHistory(gameId)
+	rating, err := s.repo.GetRatingHistory(gameId)
+	if len(rating) < 1 {
+		return nil, errors.NewErr(err, http.StatusNotFound, "There are no games to rank.")
+	}
+	return rating, nil
 }
